@@ -1,0 +1,181 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+
+.leftSide {
+  flex: 1;
+  background: linear-gradient( 135deg, rgba(122, 32, 32, 0.7) 0%, rgba(163, 58, 58, 0.6) 60% ), url('/bck-login.jpg') left / cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+}
+.rightSide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #2A2A2A;
+  position: relative;
+}
+
+
+.imageOverlay {
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+}
+.imageOverlay h1 {
+  font-size: 58px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+.subtitleLoginPage {
+  font-size: 32px;
+  margin-bottom: 8px;
+  opacity: 0.95;
+}
+.subtitleLoginPageMinorSubtitle {
+  font-size: 22px;
+  opacity: 0.75;
+}
+
+
+
+.loginBox {
+  width: 100%;
+  max-width: 450px;
+}
+.header {
+  margin-bottom: 24px;
+  text-align: right;
+}
+.header h2 {
+  color: #F2F2F2;
+  margin-bottom: 8px;
+  font-size: 28px;
+}
+.header p {
+  color: #F2F2F2;
+  font-size: 14px;
+}
+
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.formGroup label {
+  font-weight: 500;
+  color: #F2F2F2;
+  font-size: 14px;
+}
+
+
+.formGroup input {
+  padding: 12px 8px 6px 8px;
+  background: none;
+  transition: all 0.25s;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-bottom: 1px solid #F2F2F2;
+}
+.formGroup input::placeholder {
+  color: #B5B5B5;
+}
+.formGroup input:focus {
+  outline: none;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-bottom: 1px solid #B70803;
+}
+
+
+.submitBtn {
+  background-color: #B70803;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+.submitBtn:hover:not(:disabled) {
+  background-color: #A33A3A;
+}
+.submitBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+.infoPartnerApp {
+  background-color: #A33A3A;
+  position: absolute;
+  bottom: 18px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #F2F2F2;
+  font-size: 14px;
+  font-weight: 500;
+  flex-direction: row-reverse;
+  padding: 0px 12px;
+}
+.infoPartnerApp img {
+  height: 52px;
+  width: auto;
+}
+
+
+/* Responsive Mobile*/
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .leftSide {
+    display: none;
+  }
+
+  .rightSide {
+    flex: 1;
+    padding: 20px;
+  }
+
+  .loginBox {
+    max-width: 100%;
+  }
+
+  .infoPartnerApp {
+    position: static;
+    margin-top: 20px;
+    justify-content: center;
+  }
+}
+
+/* Responsive - Tablets */
+@media (max-width: 1024px) {
+  .imageOverlay h1 {
+    font-size: 36px;
+  }
+
+  .imageOverlay p {
+    font-size: 18px;
+  }
+}

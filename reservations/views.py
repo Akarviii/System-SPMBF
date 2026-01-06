@@ -1,0 +1,236 @@
+from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from accounts.permissions import IsAdminRole
+from reservations.models import Reservation
+from reservations.permissions import IsOwnerOrAdmin
+from reservations.serializers import (
+    ReservationAdminSerializer,
+    ReservationCreateSerializer,
+    ReservationDecisionSerializer,
+    ReservationPublicSerializer,
+    ReservationUpdateSerializer,
+)
+from reservations.services import (
+    approve_reservation,
+    cancel_reservation,
+    create_reservation,
+    reject_reservation,
+    validate_overlap,
+)
+
+User = get_user_model()
+
+DATE_RANGE_PARAMS = [
+    OpenApiParameter(
+        name="start",
+        type=OpenApiTypes.DATETIME,
+        required=False,
+        description="Fecha/hora inicio (ISO 8601). Por defecto ahora.",
+    ),
+    OpenApiParameter(
+        name="end",
+        type=OpenApiTypes.DATETIME,
+        required=False,
+        description="Fecha/hora fin (ISO 8601). Por defecto 30 días hacia adelante.",
+    ),
+]
+
+LIST_PARAMS = DATE_RANGE_PARAMS + [
+    OpenApiParameter(
+        name="space",
+        type=OpenApiTypes.INT,
+        required=False,
+        description="Filtra por ID de espacio. Si se omite, devuelve todas las reservas en el rango.",
+    ),
+]
+
+
+def _parse_datetime(value):
+    dt = parse_datetime(value)
+    if not dt:
+        raise ValidationError("Invalid datetime format. Use ISO 8601.")
+    if timezone.is_naive(dt):
+        dt = timezone.make_aware(dt, timezone.get_default_timezone())
+    return dt
+
+
+@extend_schema_view(
+    list=extend_schema(
+        tags=["Reservas (Teacher)"],
+        summary="Consultar reservas en un rango",
+        description=(
+            "Admin ve todas las reservas con detalle completo. Teachers solo ven reservas en estado PENDING/APPROVED "
+            "con campos públicos."
+        ),
+        parameters=LIST_PARAMS,
+        responses=ReservationAdminSerializer(many=True),
+    ),
+    retrieve=extend_schema(
+        tags=["Reservas (Teacher)"],
+        summary="Detalle de reserva",
+        description="Admin u owner ven detalle completo; otros roles reciben versión pública.",
+        responses=ReservationAdminSerializer,
+    ),
+    create=extend_schema(
+        tags=["Reservas (Teacher)"],
+        summary="Crear una reserva",
+        description="Cualquier usuario autenticado puede crear su propia reserva; valida solapamiento y duración mínima/máxima.",
+        request=ReservationCreateSerializer,
+        responses=ReservationAdminSerializer,
+    ),
+    update=extend_schema(
+        tags=["Reservas (Admin)"],
+        summary="Editar reserva",
+        description="Solo ADMIN. Revalida solapamiento si se cambian fechas.",
+    ),
+    partial_update=extend_schema(
+        tags=["Reservas (Admin)"],
+        summary="Editar reserva (parcial)",
+        description="Solo ADMIN. Revalida solapamiento si se cambian fechas.",
+    ),
+    mine=extend_schema(
+        tags=["Reservas (Teacher)"],
+        summary="Mis reservas",
+        description="Filtra por rango de fechas y devuelve solo las reservas creadas por el usuario autenticado.",
+        parameters=DATE_RANGE_PARAMS,
+        responses=ReservationAdminSerializer(many=True),
+    ),
+    cancel=extend_schema(
+        tags=["Reservas (Teacher)"],
+        summary="Cancelar reserva propia",
+        description="Owner o ADMIN pueden cancelar. Cambia el estado a CANCELLED.",
+        responses=ReservationAdminSerializer,
+    ),
+    approve=extend_schema(
+        tags=["Reservas (Admin)"],
+        summary="Aprobar una reserva",
+        description="Solo ADMIN. Permite adjuntar una nota opcional.",
+        request=ReservationDecisionSerializer,
+        responses=ReservationAdminSerializer,
+    ),
+    reject=extend_schema(
+        tags=["Reservas (Admin)"],
+        summary="Rechazar una reserva",
+        description="Solo ADMIN. Permite adjuntar una nota opcional.",
+        request=ReservationDecisionSerializer,
+        responses=ReservationAdminSerializer,
+    ),
+)
+class ReservationViewSet(viewsets.ModelViewSet):
+    queryset = Reservation.objects.select_related("space", "created_by", "approved_by").all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReservationAdminSerializer
+
+    def get_serializer_class(self):
+        if self.action in ["create"]:
+            return ReservationCreateSerializer
+        if self.action in ["update", "partial_update"]:
+            return ReservationUpdateSerializer
+        if self.action == "list":
+            if self.request.user.role == User.Role.ADMIN:
+                return ReservationAdminSerializer
+            return ReservationPublicSerializer
+        return ReservationAdminSerializer
+
+    def _get_date_range(self, request):
+        start_param = request.query_params.get("start")
+        end_param = request.query_params.get("end")
+        now = timezone.now()
+        default_end = now + timedelta(days=30)
+        if start_param:
+            start_dt = _parse_datetime(start_param)
+        else:
+            start_dt = now
+        if end_param:
+            end_dt = _parse_datetime(end_param)
+        else:
+            end_dt = default_end
+        if start_dt >= end_dt:
+            raise ValidationError("La fecha de inicio debe ser anterior a la fecha fin")
+        return start_dt, end_dt
+
+    def list(self, request, *args, **kwargs):
+        start_dt, end_dt = self._get_date_range(request)
+        queryset = self.filter_queryset(self.get_queryset())
+        space_id = request.query_params.get("space")
+        if request.user.role != User.Role.ADMIN:
+            queryset = queryset.filter(status__in=[Reservation.Status.PENDING, Reservation.Status.APPROVED])
+        if space_id:
+            queryset = queryset.filter(space_id=space_id)
+        queryset = queryset.filter(start_at__lt=end_dt, end_at__gt=start_dt)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="mine")
+    def mine(self, request, *args, **kwargs):
+        start_dt, end_dt = self._get_date_range(request)
+        queryset = self.get_queryset().filter(created_by=request.user, start_at__lt=end_dt, end_at__gt=start_dt)
+        serializer = ReservationAdminSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        reservation = self.get_object()
+        if request.user.role == User.Role.ADMIN or reservation.created_by_id == request.user.id:
+            serializer = ReservationAdminSerializer(reservation)
+        else:
+            serializer = ReservationPublicSerializer(reservation)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reservation = create_reservation(request.user, serializer.validated_data)
+        output = ReservationAdminSerializer(reservation)
+        headers = self.get_success_headers(output.data)
+        return Response(output.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def partial_update(self, request, *args, **kwargs):
+        if request.user.role != User.Role.ADMIN:
+            raise PermissionDenied("Only admins can edit reservations")
+        reservation = self.get_object()
+        serializer = self.get_serializer(reservation, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        start_at = serializer.validated_data.get("start_at", reservation.start_at)
+        end_at = serializer.validated_data.get("end_at", reservation.end_at)
+        with transaction.atomic():
+            if start_at != reservation.start_at or end_at != reservation.end_at:
+                validate_overlap(reservation.space, start_at, end_at, exclude_reservation_id=reservation.id)
+            for attr, value in serializer.validated_data.items():
+                setattr(reservation, attr, value)
+            reservation.save()
+        return Response(ReservationAdminSerializer(reservation).data)
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated, IsOwnerOrAdmin])
+    def cancel(self, request, pk=None):
+        reservation = self.get_object()
+        reservation = cancel_reservation(request.user, reservation)
+        return Response(ReservationAdminSerializer(reservation).data)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated, IsAdminRole])
+    def approve(self, request, pk=None):
+        reservation = self.get_object()
+        note = request.data.get("note")
+        reservation = approve_reservation(request.user, reservation, note=note)
+        return Response(ReservationAdminSerializer(reservation).data)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated, IsAdminRole])
+    def reject(self, request, pk=None):
+        reservation = self.get_object()
+        note = request.data.get("note")
+        reservation = reject_reservation(request.user, reservation, note=note)
+        return Response(ReservationAdminSerializer(reservation).data)
