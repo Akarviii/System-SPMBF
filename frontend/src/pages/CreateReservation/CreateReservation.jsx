@@ -27,7 +27,7 @@ const CreateReservation = () => {
       const data = await spaceService.getAll()
       setSpaces(data.filter(s => s.is_active))
     } catch (err) {
-      console.error('Error loading spaces:', err)
+      console.error('Error loading spaces...', err)
     }
   }
 
@@ -38,7 +38,7 @@ const CreateReservation = () => {
 
   const validateDuration = () => {
     if (!formData.start_at || !formData.end_at) {
-      return 'Debes especificar fecha de inicio y fin'
+      return 'You must specify the start and end dates.'
     }
 
     const start = new Date(formData.start_at)
@@ -46,15 +46,15 @@ const CreateReservation = () => {
     const durationMinutes = (end - start) / (1000 * 60)
 
     if (durationMinutes < 30) {
-      return 'La duración mínima es de 30 minutos'
+      return 'The minimum duration is 30 minutes.'
     }
 
     if (durationMinutes > 240) {
-      return 'La duración máxima es de 4 horas'
+      return 'The maximum duration is 4 hours.'
     }
 
     if (start >= end) {
-      return 'La fecha de fin debe ser posterior a la de inicio'
+      return 'The end date must be after the start date.'
     }
 
     return null
@@ -94,7 +94,7 @@ const CreateReservation = () => {
     } catch (err) {
       const errorMsg = err.response?.data?.detail ||
                        err.response?.data?.error ||
-                       'Error al crear la reserva'
+                       'Error creating reservation'
       setError(errorMsg)
     } finally {
       setLoading(false)
@@ -104,14 +104,14 @@ const CreateReservation = () => {
   return (
     <div className={styles.createPage}>
       <div className={styles.header}>
-        <h1>Nueva Reserva</h1>
-        <p>Completa el formulario para crear una nueva reserva</p>
+        <h1>New Reserve</h1>
+        <p>Complete the form to create a new reservation</p>
       </div>
 
       <div className={styles.formContainer}>
         {success && (
           <div className={styles.success}>
-            Reserva creada exitosamente! Redirigiendo...
+            Reservation successfully created! Redirecting...
           </div>
         )}
 
@@ -120,7 +120,7 @@ const CreateReservation = () => {
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="space">
-              Espacio (opcional - se asignará automáticamente si se omite)
+              Space (optional - will be assigned automatically if omitted)
             </label>
             <select
               id="space"
@@ -128,7 +128,7 @@ const CreateReservation = () => {
               value={formData.space}
               onChange={handleChange}
             >
-              <option value="">Asignación automática</option>
+              <option value="">Automatic assignment</option>
               {spaces.map(space => (
                 <option key={space.id} value={space.id}>
                   {space.name} - {space.location}
@@ -138,7 +138,7 @@ const CreateReservation = () => {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="title">Título *</label>
+            <label htmlFor="title">Title *</label>
             <input
               type="text"
               id="title"
@@ -146,25 +146,25 @@ const CreateReservation = () => {
               value={formData.title}
               onChange={handleChange}
               required
-              placeholder="Ej: Clase de Matemáticas"
+              placeholder="Math Class"
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="description">Descripción</label>
+            <label htmlFor="description">Description</label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows="3"
-              placeholder="Información adicional sobre la reserva"
+              placeholder="Additional information about the reservation"
             />
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
-              <label htmlFor="start_at">Fecha y Hora de Inicio *</label>
+              <label htmlFor="start_at">Start Date and Time *</label>
               <input
                 type="datetime-local"
                 id="start_at"
@@ -176,7 +176,7 @@ const CreateReservation = () => {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="end_at">Fecha y Hora de Fin *</label>
+              <label htmlFor="end_at">End Date and Time *</label>
               <input
                 type="datetime-local"
                 id="end_at"
@@ -189,11 +189,11 @@ const CreateReservation = () => {
           </div>
 
           <div className={styles.info}>
-            <strong>Restricciones:</strong>
+            <strong>Restrictions:</strong>
             <ul>
-              <li>Duración mínima: 30 minutos</li>
-              <li>Duración máxima: 4 horas</li>
-              <li>No se permiten solapamientos con reservas existentes</li>
+              <li>Minimum duration: 30 minutes</li>
+              <li>Maximum duration: 4 hours</li>
+              <li>Overlaps with existing reservations are not permitted.</li>
             </ul>
           </div>
 
@@ -203,14 +203,14 @@ const CreateReservation = () => {
               onClick={() => navigate(-1)}
               className={styles.cancelBtn}
             >
-              Cancelar
+              Cancel
             </button>
             <button
               type="submit"
               className={styles.submitBtn}
               disabled={loading}
             >
-              {loading ? 'Creando...' : 'Crear Reserva'}
+              {loading ? 'Creating...' : 'Create Reservation'}
             </button>
           </div>
         </form>

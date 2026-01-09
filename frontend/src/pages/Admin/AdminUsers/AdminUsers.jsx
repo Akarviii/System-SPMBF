@@ -108,17 +108,17 @@ const AdminUsers = () => {
     }
   }
 
-  if (loading) return <div>Cargando usuarios...</div>
+  if (loading) return <div>Loading users...</div>
 
   return (
     <div className={styles.adminUsersPage}>
       <div className={styles.header}>
         <div>
-          <h1>Gestión de Usuarios</h1>
-          <p>Administra los usuarios del sistema</p>
+          <h1>User Management</h1>
+          <p>Manage all users in the system</p>
         </div>
         <button onClick={() => handleOpenModal()} className={styles.createBtn}>
-          + Crear Usuario
+          + Create User
         </button>
       </div>
 
@@ -130,12 +130,12 @@ const AdminUsers = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Fecha de registro</th>
-                <th>Acciones</th>
+                <th>Name</th>
+                <th>E-mail</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Registration Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -151,7 +151,7 @@ const AdminUsers = () => {
                   </td>
                   <td>
                     <span className={user.is_active ? styles.statusActive : styles.statusInactive}>
-                      {user.is_active ? 'Activo' : 'Inactivo'}
+                      {user.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td>{new Date(user.date_joined).toLocaleDateString()}</td>
@@ -161,13 +161,13 @@ const AdminUsers = () => {
                         onClick={() => handleOpenModal(user)}
                         className={styles.editBtn}
                       >
-                        Editar
+                        Edit
                       </button>
                       <button
                         onClick={() => handleDelete(user.id)}
                         className={styles.deleteBtn}
                       >
-                        Desactivar
+                        Delete
                       </button>
                     </div>
                   </td>
@@ -182,7 +182,7 @@ const AdminUsers = () => {
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{editingUser ? 'Editar Usuario' : 'Crear Usuario'}</h2>
+              <h2>{editingUser ? 'Edit User' : 'Create User'}</h2>
               <button onClick={handleCloseModal} className={styles.closeBtn}>×</button>
             </div>
 
@@ -190,7 +190,7 @@ const AdminUsers = () => {
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
-                <label>Email *</label>
+                <label>E-mail *</label>
                 <input
                   type="email"
                   name="email"
@@ -202,7 +202,7 @@ const AdminUsers = () => {
 
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
-                  <label>Nombre *</label>
+                  <label>Name *</label>
                   <input
                     type="text"
                     name="first_name"
@@ -212,7 +212,7 @@ const AdminUsers = () => {
                   />
                 </div>
                 <div className={styles.formGroup}>
-                  <label>Apellido *</label>
+                  <label>Surname *</label>
                   <input
                     type="text"
                     name="last_name"
@@ -224,7 +224,7 @@ const AdminUsers = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label>Rol *</label>
+                <label>Role *</label>
                 <select name="role" value={formData.role} onChange={handleChange} required>
                   <option value="TEACHER">Profesor</option>
                   <option value="ADMIN">Administrador</option>
@@ -232,7 +232,7 @@ const AdminUsers = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label>Contraseña {editingUser && '(dejar en blanco para no cambiar)'}</label>
+                <label>Password {editingUser && '(dejar en blanco para no cambiar)'}</label>
                 <input
                   type="password"
                   name="password"
@@ -250,16 +250,16 @@ const AdminUsers = () => {
                     checked={formData.is_active}
                     onChange={handleChange}
                   />
-                  Usuario activo
+                  Active User
                 </label>
               </div>
 
               <div className={styles.modalActions}>
                 <button type="button" onClick={handleCloseModal} className={styles.cancelBtn}>
-                  Cancelar
+                  Cancel
                 </button>
                 <button type="submit" className={styles.submitBtn}>
-                  {editingUser ? 'Actualizar' : 'Crear'}
+                  {editingUser ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>

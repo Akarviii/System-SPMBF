@@ -27,25 +27,7 @@ const Layout = ({ children }) => {
               to="/"
               className={isActive('/') ? styles.active : ''}
             >
-              Inicio
-            </Link>
-            <Link
-              to="/spaces"
-              className={isActive('/spaces') ? styles.active : ''}
-            >
-              Espacios
-            </Link>
-            <Link
-              to="/my-reservations"
-              className={isActive('/my-reservations') ? styles.active : ''}
-            >
-              Mis Reservas
-            </Link>
-            <Link
-              to="/create-reservation"
-              className={isActive('/create-reservation') ? styles.active : ''}
-            >
-              Nueva Reserva
+              Home
             </Link>
 
             {isAdmin() && (
@@ -55,19 +37,19 @@ const Layout = ({ children }) => {
                   to="/admin/users"
                   className={isActive('/admin/users') ? styles.active : ''}
                 >
-                  Usuarios
+                  Users
                 </Link>
                 <Link
                   to="/admin/spaces"
                   className={isActive('/admin/spaces') ? styles.active : ''}
                 >
-                  Admin Espacios
+                  Admin Spaces
                 </Link>
                 <Link
                   to="/admin/reservations"
                   className={isActive('/admin/reservations') ? styles.active : ''}
                 >
-                  Admin Reservas
+                  Admin Reservations
                 </Link>
               </>
             )}
@@ -76,10 +58,10 @@ const Layout = ({ children }) => {
           <div className={styles.navUser}>
             <span className={styles.userName}>
               {user?.first_name} {user?.last_name}
-              {isAdmin() && <span className={styles.badge}>Admin</span>}
+              {isAdmin() && <span className={styles.badge}>Administrator</span>}
             </span>
             <button onClick={handleLogout} className={styles.logoutBtn}>
-              Cerrar Sesión
+              Log Out
             </button>
           </div>
         </div>

@@ -8,19 +8,77 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({ email: '', password: '' })
   const { login } = useAuth()
   const { showError, showSuccess } = useToast()
   const navigate = useNavigate()
 
+  const validateEmail = (value) => {
+    if (!value.trim()) {
+      return 'please, type your email...'
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(value)) {
+      return 'Please, type a valid e-mail...'
+    }
+    return ''
+  }
+
+  const validatePassword = (value) => {
+    if (!value.trim()) {
+      return 'please, type your password...'
+    }
+    return ''
+  }
+
+  // Clear error when user starts typing
+  const handleEmailChange = (e) => {
+    const value = e.target.value
+    setEmail(value)
+    if (errors.email) {
+      setErrors(prev => ({ ...prev, email: '' }))
+    }
+  }
+  const handlePasswordChange = (e) => {
+    const value = e.target.value
+    setPassword(value)
+    if (errors.password) {
+      setErrors(prev => ({ ...prev, password: '' }))
+    }
+  }
+
+  const handleEmailBlur = () => {
+    const error = validateEmail(email)
+    setErrors(prev => ({ ...prev, email: error }))
+  }
+
+  const handlePasswordBlur = () => {
+    const error = validatePassword(password)
+    setErrors(prev => ({ ...prev, password: error }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    const emailError = validateEmail(email)
+    const passwordError = validatePassword(password)
+
+    setErrors({
+      email: emailError,
+      password: passwordError
+    })
+
+    // Error = no submit
+    if (emailError || passwordError) {
+      return
+    }
+
     setLoading(true)
 
     try {
       await login(email, password)
       showSuccess('Redirecting to main page, wait a minute...', 3000)
 
-      // Wait a moment to show the toast before navigating
       setTimeout(() => {
         navigate('/')
       }, 1500)
@@ -28,8 +86,7 @@ const Login = () => {
       if (!err.response) {
         showError('Error, server busy, try again later...', 3000)
       } else if (err.response?.status === 401) {
-        showError('Error, wrong credentials, try again!', 3000)
-        // Clear fields when credentials are wrong
+        showError('Error, wrong credentials, try again...', 3000)
         setEmail('')
         setPassword('')
       } else {
@@ -41,7 +98,6 @@ const Login = () => {
 
   return (
     <div className={styles.container}>
-      {/* Lado izquierdo - Imagen */}
       <div className={styles.leftSide}>
         <div className={styles.imageOverlay}>
           <h1>LibApartado</h1>
@@ -50,7 +106,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Lado derecho - Formulario */}
       <div className={styles.rightSide}>
         <div className={styles.loginBox}>
           <div className={styles.header}>
@@ -58,31 +113,51 @@ const Login = () => {
             <p>Please enter your credentials to continue</p>
           </div>
 
-          <form onSubmit={handleSubmit} className={styles.form}>
+          <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <div className={styles.formGroup}>
               <label htmlFor="email">E-mail</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="username@example.com"
-                autoComplete="email"
-              />
+              <div className={styles.inputWrapper}>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
+                  placeholder="username@example.com"
+                  autoComplete="email"
+                  className={errors.email ? styles.inputError : ''}
+                />
+                {errors.email && (
+                  <div className={styles.errorPopup}>
+                    {errors.email}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className={styles.formGroup}>
               <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="••••••••••••"
-                autoComplete="current-password"
-              />
+              <div className={styles.inputWrapper}>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  onBlur={handlePasswordBlur}
+                  placeholder="••••••••••••"
+                  autoComplete="current-password"
+                  className={errors.password ? styles.inputError : ''}
+                />
+                {errors.password && (
+                  <div className={styles.errorPopup}>
+                    {errors.password}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.forgotPassword}>
+              <a href="https://wa.me/573028530092" target='_blank'>Forgot your Password?</a>
             </div>
 
             <button type="submit" className={styles.submitBtn} disabled={loading}>
@@ -91,7 +166,7 @@ const Login = () => {
           </form>
         </div>
             <div className={styles.infoPartnerApp}>
-              Integrated System
+              Integrated System &copy;
               <img src="/logo-fesc.png" alt="FESC Logo" />
             </div>
       </div>

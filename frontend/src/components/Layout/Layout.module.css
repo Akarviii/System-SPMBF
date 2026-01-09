@@ -47,12 +47,12 @@
 
 .navLinks a:hover {
   color: var(--primary-color);
-  background-color: #f1f5f9;
+  background-color: var(--surface-elevated);
 }
 
 .navLinks a.active {
   color: var(--primary-color);
-  background-color: #eff6ff;
+  background-color: var(--surface-elevated);
 }
 
 .divider {
@@ -98,9 +98,9 @@
 }
 
 .logoutBtn:hover {
-  background-color: #fee2e2;
-  border-color: #fecaca;
-  color: #991b1b;
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
 }
 
 .main {

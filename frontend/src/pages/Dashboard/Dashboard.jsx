@@ -49,39 +49,39 @@ const Dashboard = () => {
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>
-        <h1>Bienvenido, {user?.first_name}!</h1>
-        <p>Sistema de Reservas de Espacios - FESC Módulo 3</p>
+        <h1>Welcome, {user?.first_name}!</h1>
+        <p>Space Reservation System - FESC Module #3</p>
       </div>
 
       <div className={styles.quickActions}>
-        <Link to="/create-reservation" className={styles.actionCard}>
-          <h3>Nueva Reserva</h3>
-          <p>Reserva un espacio disponible</p>
-        </Link>
         <Link to="/spaces" className={styles.actionCard}>
-          <h3>Ver Espacios</h3>
-          <p>Consulta la disponibilidad</p>
+          <h3>See Available Spaces</h3>
+          <p>Check availability</p>
         </Link>
         <Link to="/my-reservations" className={styles.actionCard}>
-          <h3>Mis Reservas</h3>
-          <p>Administra tus reservas</p>
+          <h3>My Reservations</h3>
+          <p>Manage your reservations</p>
+        </Link>
+        <Link to="/create-reservation" className={styles.actionCard}>
+          <h3>New Reservation</h3>
+          <p>Reserve an available space</p>
         </Link>
         {isAdmin() && (
           <Link to="/admin/reservations" className={styles.actionCard}>
-            <h3>Aprobar Reservas</h3>
-            <p>Gestión administrativa</p>
+            <h3>Approve Reservations</h3>
+            <p>Administrative management</p>
           </Link>
         )}
       </div>
 
       <div className={styles.section}>
-        <h2>Próximas Reservas (7 días)</h2>
+        <h2>Upcoming Reservations (7 days)</h2>
         {loading ? (
-          <p>Cargando...</p>
+          <p>Loading...</p>
         ) : error ? (
           <p className={styles.error}>{error}</p>
         ) : upcomingReservations.length === 0 ? (
-          <p className={styles.emptyState}>No tienes reservas próximas</p>
+          <p className={styles.emptyState}>You don't have reservations at this moment!</p>
         ) : (
           <div className={styles.reservationsList}>
             {upcomingReservations.map((reservation) => (
@@ -92,13 +92,13 @@ const Dashboard = () => {
                 </div>
                 <div className={styles.reservationDetails}>
                   <p>
-                    <strong>Espacio:</strong> {reservation.space?.name || 'N/A'}
+                    <strong>Space:</strong> {reservation.space?.name || 'N/A'}
                   </p>
                   <p>
-                    <strong>Inicio:</strong> {formatDateTime(reservation.start_at)}
+                    <strong>Starting:</strong> {formatDateTime(reservation.start_at)}
                   </p>
                   <p>
-                    <strong>Fin:</strong> {formatDateTime(reservation.end_at)}
+                    <strong>Ending:</strong> {formatDateTime(reservation.end_at)}
                   </p>
                 </div>
               </div>

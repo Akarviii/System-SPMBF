@@ -25,7 +25,7 @@ const AdminSpaces = () => {
       const data = await spaceService.getAll()
       setSpaces(data)
     } catch (err) {
-      setError('Error al cargar espacios')
+      setError('Error loading available spaces')
       console.error(err)
     } finally {
       setLoading(false)
@@ -81,38 +81,38 @@ const AdminSpaces = () => {
       await loadSpaces()
       handleCloseModal()
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error al guardar espacio')
+      setError(err.response?.data?.detail || 'Error saving that space')
     }
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Eliminar este espacio? Esta acción no se puede deshacer.')) return
+    if (!confirm('¿Delete this space? You cant undo this action.')) return
 
     try {
       await spaceService.delete(id)
       await loadSpaces()
     } catch (err) {
-      alert('Error al eliminar espacio')
+      alert('Error deleting that space')
       console.error(err)
     }
   }
 
-  if (loading) return <div>Cargando espacios...</div>
+  if (loading) return <div>Loading available spaces...</div>
 
   return (
     <div className={styles.adminSpacesPage}>
       <div className={styles.header}>
         <div>
-          <h1>Gestión de Espacios</h1>
-          <p>Administra los espacios disponibles para reserva</p>
+          <h1>Spaces Management</h1>
+          <p>Manage the spaces available for reservation</p>
         </div>
         <button onClick={() => handleOpenModal()} className={styles.createBtn}>
-          + Crear Espacio
+          + Create Space
         </button>
       </div>
 
       {spaces.length === 0 ? (
-        <p className={styles.emptyState}>No hay espacios creados</p>
+        <p className={styles.emptyState}>No new spaces</p>
       ) : (
         <div className={styles.spacesGrid}>
           {spaces.map(space => (
@@ -120,25 +120,25 @@ const AdminSpaces = () => {
               <div className={styles.cardHeader}>
                 <h3>{space.name}</h3>
                 <span className={space.is_active ? styles.statusActive : styles.statusInactive}>
-                  {space.is_active ? 'Activo' : 'Inactivo'}
+                  {space.is_active ? 'Active' : 'Inactive'}
                 </span>
               </div>
               <p className={styles.description}>{space.description}</p>
               <p className={styles.location}>
-                <strong>Ubicación:</strong> {space.location}
+                <strong>Location:</strong> {space.location}
               </p>
               <div className={styles.cardActions}>
                 <button
                   onClick={() => handleOpenModal(space)}
                   className={styles.editBtn}
                 >
-                  Editar
+                  Edit
                 </button>
                 <button
                   onClick={() => handleDelete(space.id)}
                   className={styles.deleteBtn}
                 >
-                  Eliminar
+                  Delete
                 </button>
               </div>
             </div>
@@ -150,7 +150,7 @@ const AdminSpaces = () => {
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{editingSpace ? 'Editar Espacio' : 'Crear Espacio'}</h2>
+              <h2>{editingSpace ? 'Edit Space' : 'Create Space'}</h2>
               <button onClick={handleCloseModal} className={styles.closeBtn}>×</button>
             </div>
 
@@ -158,38 +158,38 @@ const AdminSpaces = () => {
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
-                <label>Nombre *</label>
+                <label>Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  placeholder="Ej: Módulo 3"
+                  placeholder="3° Module"
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label>Descripción *</label>
+                <label>Description *</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   required
                   rows="3"
-                  placeholder="Descripción del espacio"
+                  placeholder="Space Description"
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label>Ubicación *</label>
+                <label>Location *</label>
                 <input
                   type="text"
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
                   required
-                  placeholder="Ej: Edificio A, Piso 2"
+                  placeholder="App #2, Street 8-3"
                 />
               </div>
 
@@ -201,16 +201,16 @@ const AdminSpaces = () => {
                     checked={formData.is_active}
                     onChange={handleChange}
                   />
-                  Espacio activo
+                  Active Space
                 </label>
               </div>
 
               <div className={styles.modalActions}>
                 <button type="button" onClick={handleCloseModal} className={styles.cancelBtn}>
-                  Cancelar
+                  Cancel
                 </button>
                 <button type="submit" className={styles.submitBtn}>
-                  {editingSpace ? 'Actualizar' : 'Crear'}
+                  {editingSpace ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>

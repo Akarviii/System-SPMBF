@@ -19,7 +19,7 @@ const MyReservations = () => {
       const data = await reservationService.getMine()
       setReservations(data)
     } catch (err) {
-      setError('Error al cargar reservas')
+      setError('Error loading all reservations...')
       console.error(err)
     } finally {
       setLoading(false)
@@ -27,7 +27,7 @@ const MyReservations = () => {
   }
 
   const handleCancel = async (id) => {
-    if (!confirm('¿Estás seguro de cancelar esta reserva?')) {
+    if (!confirm('¿Are you sure to cancel this reservation?')) {
       return
     }
 
@@ -35,17 +35,17 @@ const MyReservations = () => {
       await reservationService.cancel(id)
       await loadReservations()
     } catch (err) {
-      alert('Error al cancelar la reserva')
+      alert('Error canceling that reservation...')
       console.error(err)
     }
   }
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      PENDING: { label: 'Pendiente', className: styles.statusPending },
-      APPROVED: { label: 'Aprobada', className: styles.statusApproved },
-      REJECTED: { label: 'Rechazada', className: styles.statusRejected },
-      CANCELLED: { label: 'Cancelada', className: styles.statusCancelled },
+      PENDING: { label: 'Pending', className: styles.statusPending },
+      APPROVED: { label: 'Approved', className: styles.statusApproved },
+      REJECTED: { label: 'rejected', className: styles.statusRejected },
+      CANCELLED: { label: 'Canceled', className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
     return <span className={`${styles.badge} ${statusInfo.className}`}>{statusInfo.label}</span>
@@ -62,8 +62,8 @@ const MyReservations = () => {
   return (
     <div className={styles.myReservationsPage}>
       <div className={styles.header}>
-        <h1>Mis Reservas</h1>
-        <p>Gestiona todas tus reservas</p>
+        <h1>My Reservations</h1>
+        <p>Manage all your reservations</p>
       </div>
 
       <div className={styles.filters}>
@@ -71,36 +71,36 @@ const MyReservations = () => {
           className={filter === 'all' ? styles.filterActive : ''}
           onClick={() => setFilter('all')}
         >
-          Todas ({reservations.length})
+          All ({reservations.length})
         </button>
         <button
           className={filter === 'PENDING' ? styles.filterActive : ''}
           onClick={() => setFilter('PENDING')}
         >
-          Pendientes ({reservations.filter(r => r.status === 'PENDING').length})
+          Pending ({reservations.filter(r => r.status === 'PENDING').length})
         </button>
         <button
           className={filter === 'APPROVED' ? styles.filterActive : ''}
           onClick={() => setFilter('APPROVED')}
         >
-          Aprobadas ({reservations.filter(r => r.status === 'APPROVED').length})
+          Approved ({reservations.filter(r => r.status === 'APPROVED').length})
         </button>
         <button
           className={filter === 'REJECTED' ? styles.filterActive : ''}
           onClick={() => setFilter('REJECTED')}
         >
-          Rechazadas ({reservations.filter(r => r.status === 'REJECTED').length})
+          Rejected ({reservations.filter(r => r.status === 'REJECTED').length})
         </button>
         <button
           className={filter === 'CANCELLED' ? styles.filterActive : ''}
           onClick={() => setFilter('CANCELLED')}
         >
-          Canceladas ({reservations.filter(r => r.status === 'CANCELLED').length})
+          Canceled ({reservations.filter(r => r.status === 'CANCELLED').length})
         </button>
       </div>
 
       {filteredReservations.length === 0 ? (
-        <p className={styles.emptyState}>No se encontraron reservas</p>
+        <p className={styles.emptyState}>There are no reservations to show</p>
       ) : (
         <div className={styles.reservationsList}>
           {filteredReservations.map((reservation) => (

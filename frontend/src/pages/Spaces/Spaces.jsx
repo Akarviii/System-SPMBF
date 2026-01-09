@@ -25,18 +25,18 @@ const Spaces = () => {
     }
   }
 
-  if (loading) return <div>Cargando espacios...</div>
+  if (loading) return <div>Loading Available Spaces...</div>
   if (error) return <div className={styles.error}>{error}</div>
 
   return (
     <div className={styles.spacesPage}>
       <div className={styles.header}>
-        <h1>Espacios Disponibles</h1>
-        <p>Selecciona un espacio para ver su disponibilidad</p>
+        <h1>Available Spaces</h1>
+        <p>Select a space to view its availability</p>
       </div>
 
       {spaces.length === 0 ? (
-        <p className={styles.emptyState}>No hay espacios disponibles</p>
+        <p className={styles.emptyState}>No spaces available</p>
       ) : (
         <div className={styles.spacesGrid}>
           {spaces.map((space) => (
@@ -44,15 +44,15 @@ const Spaces = () => {
               <div className={styles.spaceHeader}>
                 <h2>{space.name}</h2>
                 {space.is_active && (
-                  <span className={styles.activeBadge}>Activo</span>
+                  <span className={styles.activeBadge}>Active</span>
                 )}
               </div>
               <p className={styles.description}>{space.description}</p>
               <p className={styles.location}>
-                <strong>Ubicación:</strong> {space.location}
+                <strong>Location:</strong> {space.location}
               </p>
               <Link to="/create-reservation" className={styles.reserveBtn}>
-                Reservar
+                Book
               </Link>
             </div>
           ))}

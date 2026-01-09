@@ -23,7 +23,7 @@ const AdminReservations = () => {
       const data = await reservationService.getAll()
       setReservations(data)
     } catch (err) {
-      setError('Error al cargar reservas')
+      setError('Error loading reservations')
       console.error(err)
     } finally {
       setLoading(false)
@@ -55,17 +55,17 @@ const AdminReservations = () => {
       await loadReservations()
       handleCloseDecisionModal()
     } catch (err) {
-      alert('Error al procesar la decisión')
+      alert('Error with that request')
       console.error(err)
     }
   }
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      PENDING: { label: 'Pendiente', className: styles.statusPending },
-      APPROVED: { label: 'Aprobada', className: styles.statusApproved },
-      REJECTED: { label: 'Rechazada', className: styles.statusRejected },
-      CANCELLED: { label: 'Cancelada', className: styles.statusCancelled },
+      PENDING: { label: 'Pending', className: styles.statusPending },
+      APPROVED: { label: 'Approved', className: styles.statusApproved },
+      REJECTED: { label: 'Rejected', className: styles.statusRejected },
+      CANCELLED: { label: 'Canceled', className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
     return <span className={`${styles.badge} ${statusInfo.className}`}>{statusInfo.label}</span>
@@ -76,15 +76,15 @@ const AdminReservations = () => {
     return r.status === filter
   })
 
-  if (loading) return <div>Cargando reservas...</div>
+  if (loading) return <div>Loading reservations...</div>
   if (error) return <div className={styles.error}>{error}</div>
 
   return (
     <div className={styles.adminReservationsPage}>
       <div className={styles.header}>
         <div>
-          <h1>Gestión de Reservas</h1>
-          <p>Aprueba, rechaza o gestiona todas las reservas</p>
+          <h1>Reservation Management</h1>
+          <p>Approve, reject, or manage all reservations</p>
         </div>
       </div>
 
@@ -93,36 +93,36 @@ const AdminReservations = () => {
           className={filter === 'PENDING' ? styles.filterActive : ''}
           onClick={() => setFilter('PENDING')}
         >
-          Pendientes ({reservations.filter(r => r.status === 'PENDING').length})
+          Pending ({reservations.filter(r => r.status === 'PENDING').length})
         </button>
         <button
           className={filter === 'APPROVED' ? styles.filterActive : ''}
           onClick={() => setFilter('APPROVED')}
         >
-          Aprobadas ({reservations.filter(r => r.status === 'APPROVED').length})
+          Approved ({reservations.filter(r => r.status === 'APPROVED').length})
         </button>
         <button
           className={filter === 'REJECTED' ? styles.filterActive : ''}
           onClick={() => setFilter('REJECTED')}
         >
-          Rechazadas ({reservations.filter(r => r.status === 'REJECTED').length})
+          Rejected ({reservations.filter(r => r.status === 'REJECTED').length})
         </button>
         <button
           className={filter === 'CANCELLED' ? styles.filterActive : ''}
           onClick={() => setFilter('CANCELLED')}
         >
-          Canceladas ({reservations.filter(r => r.status === 'CANCELLED').length})
+          Canceled ({reservations.filter(r => r.status === 'CANCELLED').length})
         </button>
         <button
           className={filter === 'all' ? styles.filterActive : ''}
           onClick={() => setFilter('all')}
         >
-          Todas ({reservations.length})
+          All ({reservations.length})
         </button>
       </div>
 
       {filteredReservations.length === 0 ? (
-        <p className={styles.emptyState}>No hay reservas</p>
+        <p className={styles.emptyState}>There are no reservations.</p>
       ) : (
         <div className={styles.reservationsList}>
           {filteredReservations.map((reservation) => (
@@ -131,7 +131,7 @@ const AdminReservations = () => {
                 <div>
                   <h3>{reservation.title}</h3>
                   <p className={styles.createdBy}>
-                    Creada por: {reservation.created_by?.first_name} {reservation.created_by?.last_name}
+                    Booked by: {reservation.created_by?.first_name} {reservation.created_by?.last_name}
                   </p>
                 </div>
                 {getStatusBadge(reservation.status)}
@@ -139,7 +139,7 @@ const AdminReservations = () => {
 
               <div className={styles.cardBody}>
                 <p className={styles.spaceInfo}>
-                  <strong>Espacio:</strong> {reservation.space?.name || 'Sin asignar'}
+                  <strong>Space:</strong> {reservation.space?.name || 'Sin asignar'}
                 </p>
 
                 {reservation.description && (
@@ -148,22 +148,22 @@ const AdminReservations = () => {
 
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
-                    <strong>Inicio:</strong>
+                    <strong>Starting:</strong>
                     <span>{formatDateTime(reservation.start_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
-                    <strong>Fin:</strong>
+                    <strong>Ending:</strong>
                     <span>{formatDateTime(reservation.end_at)}</span>
                   </div>
                 </div>
 
                 {reservation.decision_note && (
                   <div className={styles.decisionNote}>
-                    <strong>Nota de decisión:</strong>
+                    <strong>Note:</strong>
                     <p>{reservation.decision_note}</p>
                     {reservation.approved_by && (
                       <p className={styles.approver}>
-                        Por: {reservation.approved_by.first_name} {reservation.approved_by.last_name}
+                        By: {reservation.approved_by.first_name} {reservation.approved_by.last_name}
                       </p>
                     )}
                   </div>
@@ -176,13 +176,13 @@ const AdminReservations = () => {
                     onClick={() => handleOpenDecisionModal(reservation, 'approve')}
                     className={styles.approveBtn}
                   >
-                    Aprobar
+                    Approve
                   </button>
                   <button
                     onClick={() => handleOpenDecisionModal(reservation, 'reject')}
                     className={styles.rejectBtn}
                   >
-                    Rechazar
+                    Reject
                   </button>
                 </div>
               )}
@@ -202,29 +202,29 @@ const AdminReservations = () => {
             </div>
 
             <div className={styles.modalBody}>
-              <p><strong>Reserva:</strong> {selectedReservation?.title}</p>
-              <p><strong>Espacio:</strong> {selectedReservation?.space?.name}</p>
-              <p><strong>Fecha:</strong> {formatDateTime(selectedReservation?.start_at)}</p>
+              <p><strong>Book:</strong> {selectedReservation?.title}</p>
+              <p><strong>Space:</strong> {selectedReservation?.space?.name}</p>
+              <p><strong>Date:</strong> {formatDateTime(selectedReservation?.start_at)}</p>
 
               <div className={styles.formGroup}>
-                <label>Nota (opcional)</label>
+                <label>Note (optional)</label>
                 <textarea
                   value={decisionNote}
                   onChange={(e) => setDecisionNote(e.target.value)}
                   rows="3"
-                  placeholder="Agrega una nota explicativa para el usuario..."
+                  placeholder="Add a note to the user explaining..."
                 />
               </div>
 
               <div className={styles.modalActions}>
                 <button onClick={handleCloseDecisionModal} className={styles.cancelBtn}>
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   onClick={handleDecision}
                   className={decisionType === 'approve' ? styles.confirmApproveBtn : styles.confirmRejectBtn}
                 >
-                  {decisionType === 'approve' ? 'Confirmar Aprobación' : 'Confirmar Rechazo'}
+                  {decisionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}
                 </button>
               </div>
             </div>
