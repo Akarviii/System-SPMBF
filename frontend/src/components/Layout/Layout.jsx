@@ -58,7 +58,9 @@ const Layout = ({ children }) => {
           <div className={styles.navUser}>
             <span className={styles.userName}>
               {user?.first_name} {user?.last_name}
-              {isAdmin() && <span className={styles.badge}>Administrator</span>}
+              <span className={isAdmin() ? styles.badgeAdmin : styles.badgeTeacher}>
+                {isAdmin() ? 'Administrator' : 'Teacher'}
+              </span>
             </span>
             <button onClick={handleLogout} className={styles.logoutBtn}>
               Log Out

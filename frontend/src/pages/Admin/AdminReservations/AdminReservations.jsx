@@ -139,7 +139,7 @@ const AdminReservations = () => {
 
               <div className={styles.cardBody}>
                 <p className={styles.spaceInfo}>
-                  <strong>Space:</strong> {reservation.space?.name || 'Sin asignar'}
+                  <strong>Space:</strong> {reservation.space?.name || 'Unassigned'}
                 </p>
 
                 {reservation.description && (
@@ -196,7 +196,7 @@ const AdminReservations = () => {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>
-                {decisionType === 'approve' ? 'Aprobar Reserva' : 'Rechazar Reserva'}
+                {decisionType === 'approve' ? 'Approve Reservation' : 'Reject Reservation'}
               </h2>
               <button onClick={handleCloseDecisionModal} className={styles.closeBtn}>×</button>
             </div>

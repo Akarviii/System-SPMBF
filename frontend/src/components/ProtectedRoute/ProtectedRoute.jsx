@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
         alignItems: 'center',
         height: '100vh'
       }}>
-        <div>Cargando...</div>
+        <div>Loading...</div>
       </div>
     )
   }

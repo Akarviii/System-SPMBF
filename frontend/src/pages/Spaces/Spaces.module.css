@@ -74,23 +74,25 @@
   width: 100%;
   text-align: center;
   background-color: var(--primary-color);
-  color: white;
+  color: white !important;
   padding: 10px 20px;
   border-radius: 8px;
-  text-decoration: none;
+  text-decoration: none !important;
   font-weight: 500;
   transition: background-color 0.2s;
 }
 
 .reserveBtn:hover {
   background-color: var(--primary-hover);
-  text-decoration: none;
+  color: white !important;
+  text-decoration: none !important;
 }
 
 .error {
-  color: var(--danger-color);
+  color: #f87171;
   padding: 16px;
-  background-color: #fee2e2;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 8px;
 }
 

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import spaceService from '../../../services/spaceService'
+import FormField from '../../../components/FormField'
+import FormAlert from '../../../components/FormAlert'
 import styles from './AdminSpaces.module.css'
 
 const AdminSpaces = () => {
   const [spaces, setSpaces] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [loadError, setLoadError] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingSpace, setEditingSpace] = useState(null)
   const [formData, setFormData] = useState({
@@ -14,6 +16,8 @@ const AdminSpaces = () => {
     location: '',
     is_active: true,
   })
+  const [errors, setErrors] = useState({})
+  const [formError, setFormError] = useState('')
 
   useEffect(() => {
     loadSpaces()
@@ -25,7 +29,7 @@ const AdminSpaces = () => {
       const data = await spaceService.getAll()
       setSpaces(data)
     } catch (err) {
-      setError('Error loading available spaces')
+      setLoadError('Error loading available spaces')
       console.error(err)
     } finally {
       setLoading(false)
@@ -50,13 +54,16 @@ const AdminSpaces = () => {
         is_active: true,
       })
     }
+    setErrors({})
+    setFormError('')
     setShowModal(true)
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
     setEditingSpace(null)
-    setError('')
+    setErrors({})
+    setFormError('')
   }
 
   const handleChange = (e) => {
@@ -65,11 +72,57 @@ const AdminSpaces = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    const error = validateField(name, value)
+    if (error) {
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }
+
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'name':
+        if (!value.trim()) return 'Name is required'
+        if (value.length < 2) return 'Name must be at least 2 characters'
+        return ''
+      case 'description':
+        if (!value.trim()) return 'Description is required'
+        return ''
+      case 'location':
+        if (!value.trim()) return 'Location is required'
+        return ''
+      default:
+        return ''
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    const nameError = validateField('name', formData.name)
+    if (nameError) newErrors.name = nameError
+
+    const descError = validateField('description', formData.description)
+    if (descError) newErrors.description = descError
+
+    const locError = validateField('location', formData.location)
+    if (locError) newErrors.location = locError
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
+    setFormError('')
+
+    if (!validateForm()) return
 
     try {
       if (editingSpace) {
@@ -81,12 +134,12 @@ const AdminSpaces = () => {
       await loadSpaces()
       handleCloseModal()
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error saving that space')
+      setFormError(err.response?.data?.detail || 'Error saving that space')
     }
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Delete this space? You cant undo this action.')) return
+    if (!confirm('Delete this space? You cannot undo this action.')) return
 
     try {
       await spaceService.delete(id)
@@ -110,6 +163,8 @@ const AdminSpaces = () => {
           + Create Space
         </button>
       </div>
+
+      {loadError && <FormAlert type="error" message={loadError} />}
 
       {spaces.length === 0 ? (
         <p className={styles.emptyState}>No new spaces</p>
@@ -154,56 +209,55 @@ const AdminSpaces = () => {
               <button onClick={handleCloseModal} className={styles.closeBtn}>×</button>
             </div>
 
-            {error && <div className={styles.error}>{error}</div>}
+            <FormAlert
+              type="error"
+              message={formError}
+              onClose={() => setFormError('')}
+            />
 
             <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label>Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="3° Module"
-                />
-              </div>
+              <FormField
+                label="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.name}
+                required
+                placeholder="3° Module"
+              />
 
-              <div className={styles.formGroup}>
-                <label>Description *</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  required
-                  rows="3"
-                  placeholder="Space Description"
-                />
-              </div>
+              <FormField
+                label="Description"
+                name="description"
+                as="textarea"
+                value={formData.description}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.description}
+                required
+                rows={3}
+                placeholder="Space Description"
+              />
 
-              <div className={styles.formGroup}>
-                <label>Location *</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  required
-                  placeholder="App #2, Street 8-3"
-                />
-              </div>
+              <FormField
+                label="Location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.location}
+                required
+                placeholder="App #2, Street 8-3"
+              />
 
-              <div className={styles.formGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={handleChange}
-                  />
-                  Active Space
-                </label>
-              </div>
+              <FormField
+                type="checkbox"
+                name="is_active"
+                label="Active Space"
+                checked={formData.is_active}
+                onChange={handleChange}
+              />
 
               <div className={styles.modalActions}>
                 <button type="button" onClick={handleCloseModal} className={styles.cancelBtn}>

@@ -28,7 +28,7 @@ const Dashboard = () => {
 
       setUpcomingReservations(data.slice(0, 5))
     } catch (err) {
-      setError('Error al cargar reservas')
+      setError('Error loading reservations')
       console.error(err)
     } finally {
       setLoading(false)
@@ -37,10 +37,10 @@ const Dashboard = () => {
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      PENDING: { label: 'Pendiente', className: styles.statusPending },
-      APPROVED: { label: 'Aprobada', className: styles.statusApproved },
-      REJECTED: { label: 'Rechazada', className: styles.statusRejected },
-      CANCELLED: { label: 'Cancelada', className: styles.statusCancelled },
+      PENDING: { label: 'Pending', className: styles.statusPending },
+      APPROVED: { label: 'Approved', className: styles.statusApproved },
+      REJECTED: { label: 'Rejected', className: styles.statusRejected },
+      CANCELLED: { label: 'Cancelled', className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
     return <span className={`${styles.badge} ${statusInfo.className}`}>{statusInfo.label}</span>

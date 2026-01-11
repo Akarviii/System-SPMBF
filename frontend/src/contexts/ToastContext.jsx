@@ -31,10 +31,20 @@ export const ToastProvider = ({ children }) => {
     addToast(message, 'success', duration)
   }
 
+  const showWarning = (message, duration = 5000) => {
+    addToast(message, 'warning', duration)
+  }
+
+  const showInfo = (message, duration = 5000) => {
+    addToast(message, 'info', duration)
+  }
+
   const value = {
     addToast,
     showError,
     showSuccess,
+    showWarning,
+    showInfo,
   }
 
   return (

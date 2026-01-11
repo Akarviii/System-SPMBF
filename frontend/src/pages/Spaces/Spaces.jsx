@@ -18,7 +18,7 @@ const Spaces = () => {
       const data = await spaceService.getAll()
       setSpaces(data)
     } catch (err) {
-      setError('Error al cargar espacios')
+      setError('Error loading spaces')
       console.error(err)
     } finally {
       setLoading(false)

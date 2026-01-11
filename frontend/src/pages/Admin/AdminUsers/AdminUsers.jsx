@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import userService from '../../../services/userService'
+import FormField from '../../../components/FormField'
+import FormAlert from '../../../components/FormAlert'
 import styles from './AdminUsers.module.css'
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [loadError, setLoadError] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
   const [formData, setFormData] = useState({
@@ -16,6 +18,8 @@ const AdminUsers = () => {
     password: '',
     is_active: true,
   })
+  const [errors, setErrors] = useState({})
+  const [formError, setFormError] = useState('')
 
   useEffect(() => {
     loadUsers()
@@ -27,7 +31,7 @@ const AdminUsers = () => {
       const data = await userService.getAll()
       setUsers(data)
     } catch (err) {
-      setError('Error al cargar usuarios')
+      setLoadError('Error loading users')
       console.error(err)
     } finally {
       setLoading(false)
@@ -56,13 +60,16 @@ const AdminUsers = () => {
         is_active: true,
       })
     }
+    setErrors({})
+    setFormError('')
     setShowModal(true)
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
     setEditingUser(null)
-    setError('')
+    setErrors({})
+    setFormError('')
   }
 
   const handleChange = (e) => {
@@ -71,11 +78,65 @@ const AdminUsers = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    const error = validateField(name, value)
+    if (error) {
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }
+
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'email':
+        if (!value.trim()) return 'Email is required'
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(value)) return 'Please enter a valid email'
+        return ''
+      case 'first_name':
+        if (!value.trim()) return 'Name is required'
+        return ''
+      case 'last_name':
+        if (!value.trim()) return 'Surname is required'
+        return ''
+      case 'password':
+        if (!editingUser && !value) return 'Password is required'
+        if (value && value.length < 6) return 'Password must be at least 6 characters'
+        return ''
+      default:
+        return ''
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    const emailError = validateField('email', formData.email)
+    if (emailError) newErrors.email = emailError
+
+    const nameError = validateField('first_name', formData.first_name)
+    if (nameError) newErrors.first_name = nameError
+
+    const surnameError = validateField('last_name', formData.last_name)
+    if (surnameError) newErrors.last_name = surnameError
+
+    const passwordError = validateField('password', formData.password)
+    if (passwordError) newErrors.password = passwordError
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
+    setFormError('')
+
+    if (!validateForm()) return
 
     try {
       const payload = { ...formData }
@@ -92,18 +153,18 @@ const AdminUsers = () => {
       await loadUsers()
       handleCloseModal()
     } catch (err) {
-      setError(err.response?.data?.detail || 'Error al guardar usuario')
+      setFormError(err.response?.data?.detail || 'Error saving user')
     }
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('¿Desactivar este usuario?')) return
+    if (!confirm('Deactivate this user?')) return
 
     try {
       await userService.delete(id)
       await loadUsers()
     } catch (err) {
-      alert('Error al desactivar usuario')
+      alert('Error deactivating user')
       console.error(err)
     }
   }
@@ -122,8 +183,10 @@ const AdminUsers = () => {
         </button>
       </div>
 
+      {loadError && <FormAlert type="error" message={loadError} />}
+
       {users.length === 0 ? (
-        <p className={styles.emptyState}>No hay usuarios</p>
+        <p className={styles.emptyState}>No users found</p>
       ) : (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
@@ -186,73 +249,75 @@ const AdminUsers = () => {
               <button onClick={handleCloseModal} className={styles.closeBtn}>×</button>
             </div>
 
-            {error && <div className={styles.error}>{error}</div>}
+            <FormAlert
+              type="error"
+              message={formError}
+              onClose={() => setFormError('')}
+            />
 
             <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label>E-mail *</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+              <FormField
+                label="E-mail"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.email}
+                required
+              />
+
+              <div className={styles.formRow}>
+                <FormField
+                  label="Name"
+                  name="first_name"
+                  value={formData.first_name}
                   onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.first_name}
+                  required
+                />
+                <FormField
+                  label="Surname"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.last_name}
                   required
                 />
               </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Name *</label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Surname *</label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
+              <FormField
+                label="Role"
+                name="role"
+                as="select"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              >
+                <option value="TEACHER">Teacher</option>
+                <option value="ADMIN">Administrator</option>
+              </FormField>
 
-              <div className={styles.formGroup}>
-                <label>Role *</label>
-                <select name="role" value={formData.role} onChange={handleChange} required>
-                  <option value="TEACHER">Profesor</option>
-                  <option value="ADMIN">Administrador</option>
-                </select>
-              </div>
+              <FormField
+                label={editingUser ? 'Password (leave blank to keep current)' : 'Password'}
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.password}
+                required={!editingUser}
+              />
 
-              <div className={styles.formGroup}>
-                <label>Password {editingUser && '(dejar en blanco para no cambiar)'}</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required={!editingUser}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    checked={formData.is_active}
-                    onChange={handleChange}
-                  />
-                  Active User
-                </label>
-              </div>
+              <FormField
+                type="checkbox"
+                name="is_active"
+                label="Active User"
+                checked={formData.is_active}
+                onChange={handleChange}
+              />
 
               <div className={styles.modalActions}>
                 <button type="button" onClick={handleCloseModal} className={styles.cancelBtn}>

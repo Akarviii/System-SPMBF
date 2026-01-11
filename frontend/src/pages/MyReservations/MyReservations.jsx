@@ -27,7 +27,7 @@ const MyReservations = () => {
   }
 
   const handleCancel = async (id) => {
-    if (!confirm('¿Are you sure to cancel this reservation?')) {
+    if (!confirm('Are you sure you want to cancel this reservation?')) {
       return
     }
 
@@ -44,7 +44,7 @@ const MyReservations = () => {
     const statusMap = {
       PENDING: { label: 'Pending', className: styles.statusPending },
       APPROVED: { label: 'Approved', className: styles.statusApproved },
-      REJECTED: { label: 'rejected', className: styles.statusRejected },
+      REJECTED: { label: 'Rejected', className: styles.statusRejected },
       CANCELLED: { label: 'Canceled', className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
@@ -56,7 +56,7 @@ const MyReservations = () => {
     return r.status === filter
   })
 
-  if (loading) return <div>Cargando reservas...</div>
+  if (loading) return <div>Loading reservations...</div>
   if (error) return <div className={styles.error}>{error}</div>
 
   return (
@@ -109,7 +109,7 @@ const MyReservations = () => {
                 <div>
                   <h3>{reservation.title}</h3>
                   <p className={styles.spaceInfo}>
-                    {reservation.space?.name || 'Sin espacio asignado'}
+                    {reservation.space?.name || 'No space assigned'}
                   </p>
                 </div>
                 {getStatusBadge(reservation.status)}
@@ -122,18 +122,18 @@ const MyReservations = () => {
 
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
-                    <strong>Inicio:</strong>
+                    <strong>Start:</strong>
                     <span>{formatDateTime(reservation.start_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
-                    <strong>Fin:</strong>
+                    <strong>End:</strong>
                     <span>{formatDateTime(reservation.end_at)}</span>
                   </div>
                 </div>
 
                 {reservation.decision_note && (
                   <div className={styles.decisionNote}>
-                    <strong>Nota de decisión:</strong>
+                    <strong>Decision note:</strong>
                     <p>{reservation.decision_note}</p>
                   </div>
                 )}
@@ -145,7 +145,7 @@ const MyReservations = () => {
                     onClick={() => handleCancel(reservation.id)}
                     className={styles.cancelBtn}
                   >
-                    Cancelar Reserva
+                    Cancel Reservation
                   </button>
                 )}
               </div>

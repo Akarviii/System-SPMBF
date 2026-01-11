@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import spaceService from '../../services/spaceService'
 import reservationService from '../../services/reservationService'
+import FormField from '../../components/FormField'
+import FormAlert from '../../components/FormAlert'
 import styles from './CreateReservation.module.css'
 
 const CreateReservation = () => {
@@ -14,8 +16,9 @@ const CreateReservation = () => {
     start_at: '',
     end_at: '',
   })
+  const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
@@ -34,6 +37,39 @@ const CreateReservation = () => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    const error = validateField(name, value)
+    if (error) {
+      setErrors(prev => ({ ...prev, [name]: error }))
+    }
+  }
+
+  const validateField = (name, value) => {
+    switch (name) {
+      case 'title':
+        if (!value.trim()) return 'Title is required'
+        if (value.length < 3) return 'Title must be at least 3 characters'
+        return ''
+      case 'start_at':
+        if (!value) return 'Start date is required'
+        if (new Date(value) < new Date()) return 'Start date cannot be in the past'
+        return ''
+      case 'end_at':
+        if (!value) return 'End date is required'
+        if (formData.start_at && new Date(value) <= new Date(formData.start_at)) {
+          return 'End date must be after start date'
+        }
+        return ''
+      default:
+        return ''
+    }
   }
 
   const validateDuration = () => {
@@ -60,14 +96,32 @@ const CreateReservation = () => {
     return null
   }
 
+  const validateForm = () => {
+    const newErrors = {}
+
+    const titleError = validateField('title', formData.title)
+    if (titleError) newErrors.title = titleError
+
+    const startError = validateField('start_at', formData.start_at)
+    if (startError) newErrors.start_at = startError
+
+    const endError = validateField('end_at', formData.end_at)
+    if (endError) newErrors.end_at = endError
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
+    setFormError('')
     setSuccess(false)
+
+    if (!validateForm()) return
 
     const durationError = validateDuration()
     if (durationError) {
-      setError(durationError)
+      setFormError(durationError)
       return
     }
 
@@ -95,7 +149,7 @@ const CreateReservation = () => {
       const errorMsg = err.response?.data?.detail ||
                        err.response?.data?.error ||
                        'Error creating reservation'
-      setError(errorMsg)
+      setFormError(errorMsg)
     } finally {
       setLoading(false)
     }
@@ -109,83 +163,76 @@ const CreateReservation = () => {
       </div>
 
       <div className={styles.formContainer}>
-        {success && (
-          <div className={styles.success}>
-            Reservation successfully created! Redirecting...
-          </div>
-        )}
+        <FormAlert
+          type="success"
+          message={success ? 'Reservation successfully created! Redirecting...' : ''}
+        />
 
-        {error && <div className={styles.error}>{error}</div>}
+        <FormAlert
+          type="error"
+          message={formError}
+          onClose={() => setFormError('')}
+        />
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label htmlFor="space">
-              Space (optional - will be assigned automatically if omitted)
-            </label>
-            <select
-              id="space"
-              name="space"
-              value={formData.space}
-              onChange={handleChange}
-            >
-              <option value="">Automatic assignment</option>
-              {spaces.map(space => (
-                <option key={space.id} value={space.id}>
-                  {space.name} - {space.location}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FormField
+            label="Space"
+            name="space"
+            as="select"
+            value={formData.space}
+            onChange={handleChange}
+          >
+            <option value="">Automatic assignment</option>
+            {spaces.map(space => (
+              <option key={space.id} value={space.id}>
+                {space.name} - {space.location}
+              </option>
+            ))}
+          </FormField>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="title">Title *</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              placeholder="Math Class"
-            />
-          </div>
+          <FormField
+            label="Title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.title}
+            required
+            placeholder="Math Class"
+          />
 
-          <div className={styles.formGroup}>
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-              placeholder="Additional information about the reservation"
-            />
-          </div>
+          <FormField
+            label="Description"
+            name="description"
+            as="textarea"
+            value={formData.description}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Additional information about the reservation"
+          />
 
           <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label htmlFor="start_at">Start Date and Time *</label>
-              <input
-                type="datetime-local"
-                id="start_at"
-                name="start_at"
-                value={formData.start_at}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <FormField
+              label="Start Date and Time"
+              name="start_at"
+              type="datetime-local"
+              value={formData.start_at}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.start_at}
+              required
+            />
 
-            <div className={styles.formGroup}>
-              <label htmlFor="end_at">End Date and Time *</label>
-              <input
-                type="datetime-local"
-                id="end_at"
-                name="end_at"
-                value={formData.end_at}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <FormField
+              label="End Date and Time"
+              name="end_at"
+              type="datetime-local"
+              value={formData.end_at}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.end_at}
+              required
+            />
           </div>
 
           <div className={styles.info}>
