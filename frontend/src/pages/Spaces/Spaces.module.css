@@ -79,6 +79,7 @@
   border-radius: 8px;
   text-decoration: none !important;
   font-weight: 500;
+  cursor: pointer;
   transition: background-color 0.2s;
 }
 
@@ -89,10 +90,10 @@
 }
 
 .error {
-  color: #f87171;
+  color: var(--danger-color);
   padding: 16px;
-  background-color: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.3);
   border-radius: 8px;
 }
 

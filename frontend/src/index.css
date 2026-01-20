@@ -17,7 +17,7 @@
   --danger-color: #ef4444;
   --warning-color: #f59e0b;
 
-  /* Fondos oscuros */
+  /* Fondos oscuros (Dark theme - default) */
   --background: #1A1A1A;
   --surface: #2A2A2A;
   --surface-elevated: #333333;
@@ -34,6 +34,27 @@
   /* Sombras para tema oscuro */
   --shadow: 0 2px 4px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.2);
   --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  /* Fondos claros */
+  --background: #F5F5F5;
+  --surface: #FFFFFF;
+  --surface-elevated: #FAFAFA;
+
+  /* Textos oscuros */
+  --text-primary: #1A1A1A;
+  --text-secondary: #666666;
+  --text-disabled: #999999;
+
+  /* Bordes y divisores */
+  --border-color: #E0E0E0;
+  --border-light: #EEEEEE;
+
+  /* Sombras para tema claro */
+  --shadow: 0 2px 4px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 8px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.08);
 }
 
 body {

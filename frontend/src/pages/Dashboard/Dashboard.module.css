@@ -101,17 +101,17 @@
 
 .statusPending {
   background-color: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
+  color: var(--warning-color);
 }
 
 .statusApproved {
   background-color: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  color: var(--success-color);
 }
 
 .statusRejected {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background-color: rgba(255, 68, 68, 0.2);
+  color: var(--danger-color);
 }
 
 .statusCancelled {
@@ -120,10 +120,10 @@
 }
 
 .error {
-  color: #f87171;
+  color: var(--danger-color);
   padding: 16px;
-  background-color: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: rgba(255, 68, 68, 0.15);
+  border: 1px solid rgba(255, 68, 68, 0.3);
   border-radius: 8px;
 }
 
