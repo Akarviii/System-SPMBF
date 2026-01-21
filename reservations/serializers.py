@@ -1,13 +1,16 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from accounts.serializers import UserBasicSerializer
 from reservations.models import Reservation
+from spaces.serializers import SpaceSerializer
 
 User = get_user_model()
 
 
 class ReservationPublicSerializer(serializers.ModelSerializer):
     label = serializers.SerializerMethodField()
+    space = SpaceSerializer(read_only=True)
 
     class Meta:
         model = Reservation
@@ -18,8 +21,10 @@ class ReservationPublicSerializer(serializers.ModelSerializer):
 
 
 class ReservationAdminSerializer(serializers.ModelSerializer):
-    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
-    approved_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    created_by = UserBasicSerializer(read_only=True)
+    approved_by = UserBasicSerializer(read_only=True)
+    space = SpaceSerializer(read_only=True)
+
     class Meta:
         model = Reservation
         fields = [
@@ -43,7 +48,10 @@ class ReservationAdminSerializer(serializers.ModelSerializer):
 class ReservationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
-        fields = ["title", "description", "start_at", "end_at"]
+        fields = ["title", "description", "start_at", "end_at", "space"]
+        extra_kwargs = {
+            'space': {'required': False, 'allow_null': True}
+        }
 
 
 class ReservationUpdateSerializer(serializers.ModelSerializer):

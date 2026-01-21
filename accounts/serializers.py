@@ -4,6 +4,14 @@ from rest_framework import serializers
 User = get_user_model()
 
 
+class UserBasicSerializer(serializers.ModelSerializer):
+    """Minimal user info for displaying in reservations"""
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "email"]
+        read_only_fields = ["id", "first_name", "last_name", "email"]
+
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, allow_blank=False)
 
