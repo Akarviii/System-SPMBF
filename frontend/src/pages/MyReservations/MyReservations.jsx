@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import reservationService from '../../services/reservationService'
 import { formatDateTime } from '../../utils/dateUtils'
 import styles from './MyReservations.module.css'
 
 const MyReservations = () => {
+  const { t } = useTranslation()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -19,7 +21,7 @@ const MyReservations = () => {
       const data = await reservationService.getMine()
       setReservations(data)
     } catch (err) {
-      setError('Error loading all reservations...')
+      setError(t('myReservations.errorLoading'))
       console.error(err)
     } finally {
       setLoading(false)
@@ -27,7 +29,7 @@ const MyReservations = () => {
   }
 
   const handleCancel = async (id) => {
-    if (!confirm('Are you sure you want to cancel this reservation?')) {
+    if (!confirm(t('myReservations.confirmCancel'))) {
       return
     }
 
@@ -35,17 +37,17 @@ const MyReservations = () => {
       await reservationService.cancel(id)
       await loadReservations()
     } catch (err) {
-      alert('Error canceling that reservation...')
+      alert(t('myReservations.errorCanceling'))
       console.error(err)
     }
   }
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      PENDING: { label: 'Pending', className: styles.statusPending },
-      APPROVED: { label: 'Approved', className: styles.statusApproved },
-      REJECTED: { label: 'Rejected', className: styles.statusRejected },
-      CANCELLED: { label: 'Canceled', className: styles.statusCancelled },
+      PENDING: { label: t('status.pending'), className: styles.statusPending },
+      APPROVED: { label: t('status.approved'), className: styles.statusApproved },
+      REJECTED: { label: t('status.rejected'), className: styles.statusRejected },
+      CANCELLED: { label: t('status.cancelled'), className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
     return <span className={`${styles.badge} ${statusInfo.className}`}>{statusInfo.label}</span>
@@ -56,14 +58,14 @@ const MyReservations = () => {
     return r.status === filter
   })
 
-  if (loading) return <div>Loading reservations...</div>
+  if (loading) return <div>{t('common.loading')}</div>
   if (error) return <div className={styles.error}>{error}</div>
 
   return (
     <div className={styles.myReservationsPage}>
       <div className={styles.header}>
-        <h1>My Reservations</h1>
-        <p>Manage all your reservations</p>
+        <h1>{t('myReservations.title')}</h1>
+        <p>{t('myReservations.subtitle')}</p>
       </div>
 
       <div className={styles.filters}>
@@ -71,36 +73,36 @@ const MyReservations = () => {
           className={filter === 'all' ? styles.filterActive : ''}
           onClick={() => setFilter('all')}
         >
-          All ({reservations.length})
+          {t('myReservations.all')} ({reservations.length})
         </button>
         <button
           className={filter === 'PENDING' ? styles.filterActive : ''}
           onClick={() => setFilter('PENDING')}
         >
-          Pending ({reservations.filter(r => r.status === 'PENDING').length})
+          {t('myReservations.pending')} ({reservations.filter(r => r.status === 'PENDING').length})
         </button>
         <button
           className={filter === 'APPROVED' ? styles.filterActive : ''}
           onClick={() => setFilter('APPROVED')}
         >
-          Approved ({reservations.filter(r => r.status === 'APPROVED').length})
+          {t('myReservations.approved')} ({reservations.filter(r => r.status === 'APPROVED').length})
         </button>
         <button
           className={filter === 'REJECTED' ? styles.filterActive : ''}
           onClick={() => setFilter('REJECTED')}
         >
-          Rejected ({reservations.filter(r => r.status === 'REJECTED').length})
+          {t('myReservations.rejected')} ({reservations.filter(r => r.status === 'REJECTED').length})
         </button>
         <button
           className={filter === 'CANCELLED' ? styles.filterActive : ''}
           onClick={() => setFilter('CANCELLED')}
         >
-          Canceled ({reservations.filter(r => r.status === 'CANCELLED').length})
+          {t('myReservations.cancelled')} ({reservations.filter(r => r.status === 'CANCELLED').length})
         </button>
       </div>
 
       {filteredReservations.length === 0 ? (
-        <p className={styles.emptyState}>There are no reservations to show</p>
+        <p className={styles.emptyState}>{t('myReservations.noReservations')}</p>
       ) : (
         <div className={styles.reservationsList}>
           {filteredReservations.map((reservation) => (
@@ -109,7 +111,7 @@ const MyReservations = () => {
                 <div>
                   <h3>{reservation.title}</h3>
                   <p className={styles.spaceInfo}>
-                    <b>Space</b>: {reservation.space?.name || 'No space assigned'}
+                    {reservation.space?.name || t('myReservations.noSpaceAssigned')}
                   </p>
                 </div>
                 {getStatusBadge(reservation.status)}
@@ -122,18 +124,18 @@ const MyReservations = () => {
 
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
-                    <strong>Start:</strong>
+                    <strong>{t('myReservations.start')}:</strong>
                     <span>{formatDateTime(reservation.start_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
-                    <strong>End:</strong>
+                    <strong>{t('myReservations.end')}:</strong>
                     <span>{formatDateTime(reservation.end_at)}</span>
                   </div>
                 </div>
 
                 {reservation.decision_note && (
                   <div className={styles.decisionNote}>
-                    <strong>Decision note:</strong>
+                    <strong>{t('myReservations.decisionNote')}:</strong>
                     <p>{reservation.decision_note}</p>
                   </div>
                 )}
@@ -145,7 +147,7 @@ const MyReservations = () => {
                     onClick={() => handleCancel(reservation.id)}
                     className={styles.cancelBtn}
                   >
-                    Cancel Reservation
+                    {t('myReservations.cancelReservation')}
                   </button>
                 )}
               </div>

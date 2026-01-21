@@ -1,9 +1,12 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import ThemeToggle from '../ThemeToggle/ThemeToggle'
+import LanguageToggle from '../LanguageToggle/LanguageToggle'
 import styles from './Layout.module.css'
 
 const Layout = ({ children }) => {
+  const { t } = useTranslation()
   const { user, logout, isAdmin } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -20,7 +23,7 @@ const Layout = ({ children }) => {
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
           <div className={styles.navBrand}>
-            <Link to="/">LibApartado</Link>
+            <Link to="/">{t('nav.brand')}</Link>
           </div>
 
           <div className={styles.navLinks}>
@@ -28,7 +31,7 @@ const Layout = ({ children }) => {
               to="/"
               className={isActive('/') ? styles.active : ''}
             >
-              Home
+              {t('nav.home')}
             </Link>
 
             {isAdmin() && (
@@ -38,19 +41,19 @@ const Layout = ({ children }) => {
                   to="/admin/users"
                   className={isActive('/admin/users') ? styles.active : ''}
                 >
-                  Users
+                  {t('nav.users')}
                 </Link>
                 <Link
                   to="/admin/spaces"
                   className={isActive('/admin/spaces') ? styles.active : ''}
                 >
-                  Admin Spaces
+                  {t('nav.adminSpaces')}
                 </Link>
                 <Link
                   to="/admin/reservations"
                   className={isActive('/admin/reservations') ? styles.active : ''}
                 >
-                  Admin Reservations
+                  {t('nav.adminReservations')}
                 </Link>
               </>
             )}
@@ -60,12 +63,13 @@ const Layout = ({ children }) => {
             <span className={styles.userName}>
               {user?.first_name} {user?.last_name}
               <span className={isAdmin() ? styles.badgeAdmin : styles.badgeTeacher}>
-                {isAdmin() ? 'Administrator' : 'Teacher'}
+                {isAdmin() ? t('nav.administrator') : t('nav.teacher')}
               </span>
             </span>
+            <LanguageToggle />
             <ThemeToggle />
             <button onClick={handleLogout} className={styles.logoutBtn}>
-              Log Out
+              {t('nav.logout')}
             </button>
           </div>
         </div>

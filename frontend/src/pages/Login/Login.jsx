@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle'
+import LanguageToggle from '../../components/LanguageToggle/LanguageToggle'
 import styles from './Login.module.css'
 
 const Login = () => {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,18 +19,18 @@ const Login = () => {
 
   const validateEmail = (value) => {
     if (!value.trim()) {
-      return 'please, type your email...'
+      return t('login.errorEmail')
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(value)) {
-      return 'Please, type a valid e-mail...'
+      return t('login.errorEmailInvalid')
     }
     return ''
   }
 
   const validatePassword = (value) => {
     if (!value.trim()) {
-      return 'please, type your password...'
+      return t('login.errorPassword')
     }
     return ''
   }
@@ -78,20 +81,20 @@ const Login = () => {
 
     try {
       await login(email, password)
-      showSuccess('Redirecting to main page, wait a minute...', 3000)
+      showSuccess(t('login.successRedirect'), 3000)
 
       setTimeout(() => {
         navigate('/')
       }, 1500)
     } catch (err) {
       if (!err.response) {
-        showError('Error, server busy, try again later...', 3000)
+        showError(t('login.errorServer'), 3000)
       } else if (err.response?.status === 401) {
-        showError('Error, wrong credentials, try again...', 3000)
+        showError(t('login.errorCredentials'), 3000)
         setEmail('')
         setPassword('')
       } else {
-        showError('Error, server busy, try again later...', 3000)
+        showError(t('login.errorServer'), 3000)
       }
       setLoading(false)
     }
@@ -101,25 +104,26 @@ const Login = () => {
     <div className={styles.container}>
       <div className={styles.leftSide}>
         <div className={styles.imageOverlay}>
-          <h1>LibApartado</h1>
-          <p className={styles.subtitleLoginPage}>Reservation System</p>
-          <p className={styles.subtitleLoginPageMinorSubtitle}>Library Module #3 FESC</p>
+          <h1>{t('login.title')}</h1>
+          <p className={styles.subtitleLoginPage}>{t('login.subtitle')}</p>
+          <p className={styles.subtitleLoginPageMinorSubtitle}>{t('login.minorSubtitle')}</p>
         </div>
       </div>
 
       <div className={styles.rightSide}>
-        <div className={styles.themeToggleWrapper}>
+        <div className={styles.togglesWrapper}>
+          <LanguageToggle />
           <ThemeToggle />
         </div>
         <div className={styles.loginBox}>
           <div className={styles.header}>
-            <h2>Welcome!</h2>
-            <p>Please enter your credentials to continue</p>
+            <h2>{t('login.welcome')}</h2>
+            <p>{t('login.credentials')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <div className={styles.formGroup}>
-              <label htmlFor="email">E-mail</label>
+              <label htmlFor="email">{t('login.email')}</label>
               <div className={styles.inputWrapper}>
                 <input
                   type="email"
@@ -127,7 +131,7 @@ const Login = () => {
                   value={email}
                   onChange={handleEmailChange}
                   onBlur={handleEmailBlur}
-                  placeholder="username@example.com"
+                  placeholder={t('login.emailPlaceholder')}
                   autoComplete="email"
                   className={errors.email ? styles.inputError : ''}
                 />
@@ -140,7 +144,7 @@ const Login = () => {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">{t('login.password')}</label>
               <div className={styles.inputWrapper}>
                 <input
                   type="password"
@@ -148,7 +152,7 @@ const Login = () => {
                   value={password}
                   onChange={handlePasswordChange}
                   onBlur={handlePasswordBlur}
-                  placeholder="••••••••••••"
+                  placeholder={t('login.passwordPlaceholder')}
                   autoComplete="current-password"
                   className={errors.password ? styles.inputError : ''}
                 />
@@ -161,16 +165,16 @@ const Login = () => {
             </div>
 
             <div className={styles.forgotPassword}>
-              <a href="https://wa.me/573028530092" target='_blank'>Forgot your Password?</a>
+              <a href="https://wa.me/573028530092" target='_blank'>{t('login.forgotPassword')}</a>
             </div>
 
             <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? 'Logging in...' : 'Log In'}
+              {loading ? t('login.loggingIn') : t('login.loginButton')}
             </button>
           </form>
         </div>
             <div className={styles.infoPartnerApp}>
-              Integrated System &copy;
+              {t('login.integratedSystem')} &copy;
               <img src="/logo-fesc.png" alt="FESC Logo" />
             </div>
       </div>

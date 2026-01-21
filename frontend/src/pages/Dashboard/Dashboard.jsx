@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import reservationService from '../../services/reservationService'
 import { formatDateTime } from '../../utils/dateUtils'
 import styles from './Dashboard.module.css'
 
 const Dashboard = () => {
+  const { t } = useTranslation()
   const { user, isAdmin } = useAuth()
   const [upcomingReservations, setUpcomingReservations] = useState([])
   const [loading, setLoading] = useState(true)
@@ -37,10 +39,10 @@ const Dashboard = () => {
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      PENDING: { label: 'Pending', className: styles.statusPending },
-      APPROVED: { label: 'Approved', className: styles.statusApproved },
-      REJECTED: { label: 'Rejected', className: styles.statusRejected },
-      CANCELLED: { label: 'Cancelled', className: styles.statusCancelled },
+      PENDING: { label: t('status.pending'), className: styles.statusPending },
+      APPROVED: { label: t('status.approved'), className: styles.statusApproved },
+      REJECTED: { label: t('status.rejected'), className: styles.statusRejected },
+      CANCELLED: { label: t('status.cancelled'), className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
     return <span className={`${styles.badge} ${statusInfo.className}`}>{statusInfo.label}</span>
@@ -49,39 +51,39 @@ const Dashboard = () => {
   return (
     <div className={styles.dashboard}>
       <div className={styles.header}>
-        <h1>Welcome, {user?.first_name}!</h1>
-        <p>Space Reservation System - FESC Module #3</p>
+        <h1>{t('dashboard.welcome', { name: user?.first_name })}</h1>
+        <p>{t('dashboard.subtitle')}</p>
       </div>
 
       <div className={styles.quickActions}>
         <Link to="/spaces" className={styles.actionCard}>
-          <h3>See Available Spaces</h3>
-          <p>Check availability</p>
+          <h3>{t('dashboard.availableSpaces')}</h3>
+          <p>{t('dashboard.availableSpacesDesc')}</p>
         </Link>
         <Link to="/my-reservations" className={styles.actionCard}>
-          <h3>My Reservations</h3>
-          <p>Manage your reservations</p>
+          <h3>{t('dashboard.myReservations')}</h3>
+          <p>{t('dashboard.myReservationsDesc')}</p>
         </Link>
         <Link to="/create-reservation" className={styles.actionCard}>
-          <h3>New Reservation</h3>
-          <p>Reserve an available space</p>
+          <h3>{t('dashboard.newReservation')}</h3>
+          <p>{t('dashboard.newReservationDesc')}</p>
         </Link>
         {isAdmin() && (
           <Link to="/admin/reservations" className={styles.actionCard}>
-            <h3>Approve Reservations</h3>
-            <p>Administrative management</p>
+            <h3>{t('dashboard.approveReservations')}</h3>
+            <p>{t('dashboard.approveReservationsDesc')}</p>
           </Link>
         )}
       </div>
 
       <div className={styles.section}>
-        <h2>Upcoming Reservations (7 days)</h2>
+        <h2>{t('dashboard.upcomingReservations')}</h2>
         {loading ? (
-          <p>Loading...</p>
+          <p>{t('common.loading')}</p>
         ) : error ? (
           <p className={styles.error}>{error}</p>
         ) : upcomingReservations.length === 0 ? (
-          <p className={styles.emptyState}>You don't have reservations at this moment!</p>
+          <p className={styles.emptyState}>{t('dashboard.noReservations')}</p>
         ) : (
           <div className={styles.reservationsList}>
             {upcomingReservations.map((reservation) => (
@@ -92,13 +94,13 @@ const Dashboard = () => {
                 </div>
                 <div className={styles.reservationDetails}>
                   <p>
-                    <strong>Space:</strong> {reservation.space?.name || 'N/A'}
+                    <strong>{t('dashboard.space')}:</strong> {reservation.space?.name || 'N/A'}
                   </p>
                   <p>
-                    <strong>Starting:</strong> {formatDateTime(reservation.start_at)}
+                    <strong>{t('dashboard.starting')}:</strong> {formatDateTime(reservation.start_at)}
                   </p>
                   <p>
-                    <strong>Ending:</strong> {formatDateTime(reservation.end_at)}
+                    <strong>{t('dashboard.ending')}:</strong> {formatDateTime(reservation.end_at)}
                   </p>
                 </div>
               </div>

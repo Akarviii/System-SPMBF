@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import reservationService from '../../../services/reservationService'
 import { formatDateTime } from '../../../utils/dateUtils'
 import styles from './AdminReservations.module.css'
 
 const AdminReservations = () => {
+  const { t } = useTranslation()
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -23,7 +25,7 @@ const AdminReservations = () => {
       const data = await reservationService.getAll()
       setReservations(data)
     } catch (err) {
-      setError('Error loading reservations')
+      setError(t('common.error'))
       console.error(err)
     } finally {
       setLoading(false)
@@ -55,17 +57,17 @@ const AdminReservations = () => {
       await loadReservations()
       handleCloseDecisionModal()
     } catch (err) {
-      alert('Error with that request')
+      alert(t('adminReservations.errorRequest'))
       console.error(err)
     }
   }
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      PENDING: { label: 'Pending', className: styles.statusPending },
-      APPROVED: { label: 'Approved', className: styles.statusApproved },
-      REJECTED: { label: 'Rejected', className: styles.statusRejected },
-      CANCELLED: { label: 'Canceled', className: styles.statusCancelled },
+      PENDING: { label: t('status.pending'), className: styles.statusPending },
+      APPROVED: { label: t('status.approved'), className: styles.statusApproved },
+      REJECTED: { label: t('status.rejected'), className: styles.statusRejected },
+      CANCELLED: { label: t('status.cancelled'), className: styles.statusCancelled },
     }
     const statusInfo = statusMap[status] || { label: status, className: '' }
     return <span className={`${styles.badge} ${statusInfo.className}`}>{statusInfo.label}</span>
@@ -76,15 +78,15 @@ const AdminReservations = () => {
     return r.status === filter
   })
 
-  if (loading) return <div>Loading reservations...</div>
+  if (loading) return <div>{t('common.loading')}</div>
   if (error) return <div className={styles.error}>{error}</div>
 
   return (
     <div className={styles.adminReservationsPage}>
       <div className={styles.header}>
         <div>
-          <h1>Reservation Management</h1>
-          <p>Approve, reject, or manage all reservations</p>
+          <h1>{t('adminReservations.title')}</h1>
+          <p>{t('adminReservations.subtitle')}</p>
         </div>
       </div>
 
@@ -93,36 +95,36 @@ const AdminReservations = () => {
           className={filter === 'PENDING' ? styles.filterActive : ''}
           onClick={() => setFilter('PENDING')}
         >
-          Pending ({reservations.filter(r => r.status === 'PENDING').length})
+          {t('adminReservations.pending')} ({reservations.filter(r => r.status === 'PENDING').length})
         </button>
         <button
           className={filter === 'APPROVED' ? styles.filterActive : ''}
           onClick={() => setFilter('APPROVED')}
         >
-          Approved ({reservations.filter(r => r.status === 'APPROVED').length})
+          {t('adminReservations.approved')} ({reservations.filter(r => r.status === 'APPROVED').length})
         </button>
         <button
           className={filter === 'REJECTED' ? styles.filterActive : ''}
           onClick={() => setFilter('REJECTED')}
         >
-          Rejected ({reservations.filter(r => r.status === 'REJECTED').length})
+          {t('adminReservations.rejected')} ({reservations.filter(r => r.status === 'REJECTED').length})
         </button>
         <button
           className={filter === 'CANCELLED' ? styles.filterActive : ''}
           onClick={() => setFilter('CANCELLED')}
         >
-          Canceled ({reservations.filter(r => r.status === 'CANCELLED').length})
+          {t('adminReservations.cancelled')} ({reservations.filter(r => r.status === 'CANCELLED').length})
         </button>
         <button
           className={filter === 'all' ? styles.filterActive : ''}
           onClick={() => setFilter('all')}
         >
-          All ({reservations.length})
+          {t('adminReservations.all')} ({reservations.length})
         </button>
       </div>
 
       {filteredReservations.length === 0 ? (
-        <p className={styles.emptyState}>There are no reservations.</p>
+        <p className={styles.emptyState}>{t('adminReservations.noReservations')}</p>
       ) : (
         <div className={styles.reservationsList}>
           {filteredReservations.map((reservation) => (
@@ -131,7 +133,7 @@ const AdminReservations = () => {
                 <div>
                   <h3>{reservation.title}</h3>
                   <p className={styles.createdBy}>
-                    Booked by: {reservation.created_by?.first_name} {reservation.created_by?.last_name}
+                    {t('adminReservations.bookedBy')}: {reservation.created_by?.first_name} {reservation.created_by?.last_name}
                   </p>
                 </div>
                 {getStatusBadge(reservation.status)}
@@ -139,7 +141,7 @@ const AdminReservations = () => {
 
               <div className={styles.cardBody}>
                 <p className={styles.spaceInfo}>
-                  <strong>Space:</strong> {reservation.space?.name || 'Unassigned'}
+                  <strong>{t('adminReservations.space')}:</strong> {reservation.space?.name || t('adminReservations.unassigned')}
                 </p>
 
                 {reservation.description && (
@@ -148,22 +150,22 @@ const AdminReservations = () => {
 
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
-                    <strong>Starting:</strong>
+                    <strong>{t('adminReservations.starting')}:</strong>
                     <span>{formatDateTime(reservation.start_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
-                    <strong>Ending:</strong>
+                    <strong>{t('adminReservations.ending')}:</strong>
                     <span>{formatDateTime(reservation.end_at)}</span>
                   </div>
                 </div>
 
                 {reservation.decision_note && (
                   <div className={styles.decisionNote}>
-                    <strong>Note:</strong>
+                    <strong>{t('adminReservations.note')}:</strong>
                     <p>{reservation.decision_note}</p>
                     {reservation.approved_by && (
                       <p className={styles.approver}>
-                        By: {reservation.approved_by.first_name} {reservation.approved_by.last_name}
+                        {t('adminReservations.by')}: {reservation.approved_by.first_name} {reservation.approved_by.last_name}
                       </p>
                     )}
                   </div>
@@ -176,13 +178,13 @@ const AdminReservations = () => {
                     onClick={() => handleOpenDecisionModal(reservation, 'approve')}
                     className={styles.approveBtn}
                   >
-                    Approve
+                    {t('adminReservations.approve')}
                   </button>
                   <button
                     onClick={() => handleOpenDecisionModal(reservation, 'reject')}
                     className={styles.rejectBtn}
                   >
-                    Reject
+                    {t('adminReservations.reject')}
                   </button>
                 </div>
               )}
@@ -196,35 +198,35 @@ const AdminReservations = () => {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>
-                {decisionType === 'approve' ? 'Approve Reservation' : 'Reject Reservation'}
+                {decisionType === 'approve' ? t('adminReservations.approveTitle') : t('adminReservations.rejectTitle')}
               </h2>
               <button onClick={handleCloseDecisionModal} className={styles.closeBtn}>×</button>
             </div>
 
             <div className={styles.modalBody}>
-              <p><strong>Book:</strong> {selectedReservation?.title}</p>
-              <p><strong>Space:</strong> {selectedReservation?.space?.name}</p>
-              <p><strong>Date:</strong> {formatDateTime(selectedReservation?.start_at)}</p>
+              <p><strong>{t('adminReservations.book')}:</strong> {selectedReservation?.title}</p>
+              <p><strong>{t('adminReservations.space')}:</strong> {selectedReservation?.space?.name}</p>
+              <p><strong>{t('adminReservations.date')}:</strong> {formatDateTime(selectedReservation?.start_at)}</p>
 
               <div className={styles.formGroup}>
-                <label>Note (optional)</label>
+                <label>{t('adminReservations.noteOptional')}</label>
                 <textarea
                   value={decisionNote}
                   onChange={(e) => setDecisionNote(e.target.value)}
                   rows="3"
-                  placeholder="Add a note to the user explaining..."
+                  placeholder={t('adminReservations.notePlaceholder')}
                 />
               </div>
 
               <div className={styles.modalActions}>
                 <button onClick={handleCloseDecisionModal} className={styles.cancelBtn}>
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleDecision}
                   className={decisionType === 'approve' ? styles.confirmApproveBtn : styles.confirmRejectBtn}
                 >
-                  {decisionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}
+                  {decisionType === 'approve' ? t('adminReservations.confirmApprove') : t('adminReservations.confirmReject')}
                 </button>
               </div>
             </div>

@@ -23,11 +23,13 @@
   position: relative;
 }
 
-.themeToggleWrapper {
+.togglesWrapper {
   position: absolute;
   top: 24px;
   right: 24px;
   z-index: 10;
+  display: flex;
+  gap: 12px;
 }
 
 .imageOverlay {

@@ -11,6 +11,7 @@ import CreateReservation from './pages/CreateReservation/CreateReservation'
 import AdminUsers from './pages/Admin/AdminUsers/AdminUsers'
 import AdminSpaces from './pages/Admin/AdminSpaces/AdminSpaces'
 import AdminReservations from './pages/Admin/AdminReservations/AdminReservations'
+import './i18n'
 import './App.css'
 
 function App() {
