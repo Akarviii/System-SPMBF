@@ -109,7 +109,7 @@ const MyReservations = () => {
                 <div>
                   <h3>{reservation.title}</h3>
                   <p className={styles.spaceInfo}>
-                    {reservation.space?.name || 'No space assigned'}
+                    <b>Space</b>: {reservation.space?.name || 'No space assigned'}
                   </p>
                 </div>
                 {getStatusBadge(reservation.status)}
