@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { useToast } from '../../contexts/ToastContext'
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle'
 import styles from './Login.module.css'
 
 const Login = () => {
@@ -107,6 +108,9 @@ const Login = () => {
       </div>
 
       <div className={styles.rightSide}>
+        <div className={styles.themeToggleWrapper}>
+          <ThemeToggle />
+        </div>
         <div className={styles.loginBox}>
           <div className={styles.header}>
             <h2>Welcome!</h2>

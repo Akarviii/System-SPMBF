@@ -23,6 +23,13 @@
   position: relative;
 }
 
+.themeToggleWrapper {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+}
+
 .imageOverlay {
   text-align: center;
   color: #fff;  /* Keep white - this is over the image gradient */
